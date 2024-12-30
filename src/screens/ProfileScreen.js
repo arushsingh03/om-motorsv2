@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { View, TextInput, Button, StyleSheet } from "react-native";
-import { Text, Card } from "react-native-elements";
+import { View, TextInput, StyleSheet, ScrollView } from "react-native";
+import { Text, Card, Button, Icon } from "react-native-elements";
 import { supabase } from "../services/supabaseClient";
 
 export default function ProfileScreen() {
@@ -71,46 +71,101 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Card>
-        <Card.Title>Profile Information</Card.Title>
+    <ScrollView contentContainerStyle={styles.container}>
+      <Card containerStyle={styles.card}>
+        <Card.Title style={styles.cardTitle}>Profile Information</Card.Title>
         <Card.Divider />
-        <Text>Name: {profile?.name || "Not set"}</Text>
-        <Text>Phone: {profile?.phone_number || "Not set"}</Text>
-        <Text>Address: {profile?.address || "Not set"}</Text>
+        <View style={styles.infoSection}>
+          <View style={styles.infoRow}>
+            <Icon name="user" type="font-awesome" color="#333" size={20} />
+            <Text style={styles.labelValue}>{profile?.name || "Not set"}</Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Icon name="phone" type="font-awesome" color="#333" size={20} />
+            <Text style={styles.labelValue}>
+              {profile?.phone_number || "Not set"}
+            </Text>
+          </View>
+          <View style={styles.infoRow}>
+            <Icon name="home" type="font-awesome" color="#333" size={20} />
+            <Text style={styles.labelValue}>
+              {profile?.address || "Not set"}
+            </Text>
+          </View>
+        </View>
       </Card>
 
-      <Card>
-        <Card.Title>Edit Profile</Card.Title>
-        <TextInput
-          style={styles.input}
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Phone Number"
-          value={phoneNumber}
-          onChangeText={setPhoneNumber}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Address"
-          value={address}
-          onChangeText={setAddress}
-        />
-        <Button title="Save Changes" onPress={updateProfile} />
+      <Card containerStyle={styles.card}>
+        <Card.Title style={styles.cardTitle}>Edit Profile</Card.Title>
+        <Card.Divider />
+        <View style={styles.formSection}>
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Address"
+            value={address}
+            onChangeText={setAddress}
+          />
+          <Button
+            title="Save Changes"
+            onPress={updateProfile}
+            buttonStyle={styles.saveButton}
+            titleStyle={styles.saveButtonText}
+          />
+        </View>
       </Card>
-    </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     padding: 10,
+    backgroundColor: "#f5f5f5",
+  },
+  card: {
+    borderRadius: 10,
+    backgroundColor: "#FFFFFF",
+    margin: 10,
+    padding: 15,
+    elevation: 2,
+  },
+  cardTitle: {
+    color: "#333",
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  infoSection: {
     backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+    elevation: 5,
+  },
+  infoRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  labelValue: {
+    fontSize: 16,
+    color: "#000",
+    marginLeft: 20,
+  },
+  formSection: {
+    padding: 15,
   },
   input: {
     height: 40,
@@ -118,5 +173,16 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 10,
     paddingLeft: 8,
+    borderRadius: 5,
+    backgroundColor: "#f8fafc",
+  },
+  saveButton: {
+    backgroundColor: "#FF0000",
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

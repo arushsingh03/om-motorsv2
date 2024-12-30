@@ -7,13 +7,16 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  StyleSheet,
 } from "react-native";
 
-const ChatComponent = () => {
+const ChatComponent = ({ isAdmin }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]);
   const flatListRef = useRef(null);
 
   useEffect(() => {
@@ -28,7 +31,11 @@ const ChatComponent = () => {
     });
 
     // Initial messages fetch
-    fetchMessages();
+    if (isAdmin) {
+      fetchUsers();
+    } else {
+      fetchMessages();
+    }
 
     // Set up real-time subscription
     const messageSubscription = supabase
@@ -46,7 +53,7 @@ const ChatComponent = () => {
       subscription?.unsubscribe();
       messageSubscription?.unsubscribe();
     };
-  }, []);
+  }, [isAdmin]);
 
   const getCurrentUser = async () => {
     const {
@@ -55,40 +62,63 @@ const ChatComponent = () => {
     setCurrentUser(user);
   };
 
-  async function fetchMessages() {
+  async function fetchUsers() {
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("sender_id")
+        .eq("receiver_id", currentUser.id)
+        .groupBy("sender_id");
+
+      if (error) {
+        console.error("Error fetching users:", error);
+        return;
+      }
+
+      const userIds = data.map((item) => item.sender_id);
+      const { data: profiles, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, name")
+        .in("id", userIds);
+
+      if (profileError) {
+        console.error("Error fetching profiles:", profileError);
+        return;
+      }
+
+      setUsers(profiles);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  }
+
+  async function fetchMessages(userId = null) {
     try {
       if (!currentUser) return;
 
-      // Check if profile exists, if not create it
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-      if (!profile) {
-        await supabase.from("profiles").insert([
-          {
-            id: currentUser.id,
-            name: currentUser.email?.split("@")[0] || "User",
-            is_admin: false,
-          },
-        ]);
-      }
-
-      const { data, error } = await supabase
+      let query = supabase
         .from("messages")
         .select(
           `
-          *,
-          sender:profiles!sender_id(id, name),
-          receiver:profiles!receiver_id(id, name)
-        `
+        *,
+        sender:profiles!sender_id(id, name),
+        receiver:profiles!receiver_id(id, name)
+      `
         )
         .order("created_at", { ascending: true });
 
+      if (userId) {
+        query = query.or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      } else {
+        query = query.or(
+          `sender_id.eq.${currentUser.id},receiver_id.eq.${currentUser.id}`
+        );
+      }
+
+      const { data, error } = await query;
+
       if (error) {
-        console.error("Error details:", error);
+        console.error("Error fetching messages:", error);
         return;
       }
 
@@ -104,31 +134,17 @@ const ChatComponent = () => {
     try {
       setLoading(true);
 
-      const { data: adminUser, error: adminError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("is_admin", true)
-        .single();
+      const receiverId = isAdmin ? selectedUser.id : null;
 
-      if (adminError) {
-        const { error } = await supabase.from("messages").insert([
-          {
-            content: newMessage.trim(),
-            sender_id: currentUser.id,
-            receiver_id: null,
-          },
-        ]);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("messages").insert([
-          {
-            content: newMessage.trim(),
-            sender_id: currentUser.id,
-            receiver_id: currentUser.id === adminUser.id ? null : adminUser.id,
-          },
-        ]);
-        if (error) throw error;
-      }
+      const { error } = await supabase.from("messages").insert([
+        {
+          content: newMessage.trim(),
+          sender_id: currentUser.id,
+          receiver_id: receiverId,
+        },
+      ]);
+
+      if (error) throw error;
 
       setNewMessage("");
       flatListRef.current?.scrollToEnd();
@@ -167,6 +183,18 @@ const ChatComponent = () => {
     );
   };
 
+  const renderUser = ({ item }) => (
+    <TouchableOpacity
+      style={styles.userContainer}
+      onPress={() => {
+        setSelectedUser(item);
+        fetchMessages(item.id);
+      }}
+    >
+      <Text style={styles.userName}>{item.name}</Text>
+    </TouchableOpacity>
+  );
+
   if (!currentUser) {
     return (
       <View style={styles.centerContainer}>
@@ -177,13 +205,22 @@ const ChatComponent = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={styles.messagesList}
-      />
+      {isAdmin && !selectedUser ? (
+        <FlatList
+          data={users}
+          renderItem={renderUser}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.usersList}
+        />
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={styles.messagesList}
+        />
+      )}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
@@ -208,7 +245,7 @@ const ChatComponent = () => {
   );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -220,6 +257,9 @@ const styles = {
   messagesList: {
     padding: 10,
   },
+  usersList: {
+    padding: 10,
+  },
   messageContainer: {
     padding: 10,
     marginVertical: 5,
@@ -228,7 +268,7 @@ const styles = {
   },
   ownMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#0084ff",
+    backgroundColor: "#FF0000",
   },
   otherMessage: {
     alignSelf: "flex-start",
@@ -236,7 +276,7 @@ const styles = {
   },
   messageSender: {
     fontSize: 12,
-    color: "#666",
+    color: "#000",
     marginBottom: 4,
   },
   messageContent: {
@@ -250,7 +290,7 @@ const styles = {
   },
   messageTime: {
     fontSize: 10,
-    color: "#666",
+    color: "#000",
     alignSelf: "flex-end",
     marginTop: 4,
   },
@@ -272,7 +312,7 @@ const styles = {
     maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: "#0084ff",
+    backgroundColor: "#FF0000",
     borderRadius: 20,
     paddingHorizontal: 20,
     justifyContent: "center",
@@ -281,6 +321,15 @@ const styles = {
     color: "#fff",
     fontSize: 16,
   },
-};
+  userContainer: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  userName: {
+    fontSize: 16,
+    color: "#000",
+  },
+});
 
 export default ChatComponent;

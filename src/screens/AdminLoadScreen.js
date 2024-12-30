@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../services/supabaseClient";
-import { View, StyleSheet, FlatList, Alert } from "react-native";
+import { View, StyleSheet, FlatList, Alert, Linking } from "react-native";
 import { Button, Input, Card, Text } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
+import moment from "moment";
 
 export default function AdminLoadScreen() {
   const [loads, setLoads] = useState([]);
@@ -90,6 +91,23 @@ export default function AdminLoadScreen() {
     }
   }
 
+  const downloadReceipt = async (receiptUrl) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from("receipts")
+        .createSignedUrl(receiptUrl, 3600); // Creates a signed URL valid for 1 hour
+
+      if (error) throw error;
+
+      Linking.openURL(data.signedUrl); // Open the URL in the browser to download the receipt
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        "Could not download receipt. Please try again later."
+      );
+    }
+  };
+
   const renderMeasurementInput = (fieldName, placeholder, unitOptions) => (
     <View style={styles.inputGroup}>
       <View style={styles.inputWrapper}>
@@ -132,7 +150,7 @@ export default function AdminLoadScreen() {
       ) : (
         <View style={styles.form}>
           <Input
-            placeholder="current location"
+            placeholder="Current Location"
             value={newLoad.current_location}
             onChangeText={(value) =>
               setNewLoad({ ...newLoad, current_location: value })
@@ -141,7 +159,7 @@ export default function AdminLoadScreen() {
             placeholderTextColor={"#000"}
           />
           <Input
-            placeholder="destination"
+            placeholder="Destination"
             value={newLoad.destination}
             onChangeText={(value) =>
               setNewLoad({ ...newLoad, destination: value })
@@ -150,16 +168,16 @@ export default function AdminLoadScreen() {
             placeholderTextColor={"#000"}
           />
 
-          {renderMeasurementInput("weight", "weight", ["kg", "tons", "lbs"])}
+          {renderMeasurementInput("weight", "Weight", ["kg", "tons", "lbs"])}
 
-          {renderMeasurementInput("truck_length", "truck length", [
+          {renderMeasurementInput("truck_length", "Truck Length", [
             "m",
             "ft",
             "inches",
           ])}
 
           <Input
-            placeholder="contact number"
+            placeholder="Contact Number"
             value={newLoad.contact_number}
             onChangeText={(value) =>
               setNewLoad({ ...newLoad, contact_number: value })
@@ -169,7 +187,7 @@ export default function AdminLoadScreen() {
           />
 
           <Input
-            placeholder="contact email"
+            placeholder="Contact Email"
             value={newLoad.contact_email}
             onChangeText={(value) =>
               setNewLoad({ ...newLoad, contact_email: value })
@@ -200,21 +218,48 @@ export default function AdminLoadScreen() {
         renderItem={({ item }) => (
           <Card containerStyle={styles.card}>
             <Card.Title style={styles.cardTitle}>
-              {item.current_location}- {item.destination}
+              {item.current_location} - {item.destination}
             </Card.Title>
             <Card.Divider />
-            <View>
-              <Text style={styles.cardText}>From: {item.current_location}</Text>
-              <Text style={styles.cardText}>To: {item.destination}</Text>
-              <Text style={styles.cardText}>
-                Weight: {item.weight} {item.weight_unit}
-              </Text>
-              <Text style={styles.cardText}>
-                Truck Length: {item.truck_length} {item.truck_length_unit}
-              </Text>
-              <Text style={styles.cardText}>
-                Contact: {item.contact_number}
-              </Text>
+            <View style={styles.cardContent}>
+              <View style={styles.infoSection}>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>Date:</Text>
+                  <Text style={styles.labelValue}>
+                    {moment(item.created_at).format("DD/MM/YYYY")}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>Time:</Text>
+                  <Text style={styles.labelValue}>
+                    {moment(item.created_at).format("hh:mm:ss, A")}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>From:</Text>
+                  <Text style={styles.labelValue}>{item.current_location}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>To:</Text>
+                  <Text style={styles.labelValue}>{item.destination}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>Weight:</Text>
+                  <Text style={styles.labelValue}>
+                    {item.weight} {item.weight_unit}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>Truck Length:</Text>
+                  <Text style={styles.labelValue}>
+                    {item.truck_length} {item.truck_length_unit}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.labelBold}>Contact: </Text>
+                  <Text style={styles.labelValue}>{item.contact_number}</Text>
+                </View>
+              </View>
               <Button
                 title="Edit"
                 onPress={() => {
@@ -233,6 +278,15 @@ export default function AdminLoadScreen() {
                 buttonStyle={styles.deleteButton}
                 titleStyle={styles.deleteButtonText}
               />
+              {item.receipt_url && (
+                <Button
+                  title="Download Receipt"
+                  onPress={() => downloadReceipt(item.receipt_url)}
+                  type="clear"
+                  buttonStyle={styles.downloadButton}
+                  titleStyle={styles.downloadButtonText}
+                />
+              )}
             </View>
           </Card>
         )}
@@ -262,6 +316,7 @@ const styles = StyleSheet.create({
   inputGroup: {
     flexDirection: "row",
     alignItems: "center",
+    marginBottom: 10,
   },
   inputWrapper: {
     flex: 2,
@@ -299,34 +354,72 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 10,
     backgroundColor: "#FFFFFF",
-    margin: 5,
+    margin: 10,
+    padding: 15,
+    elevation: 2,
   },
   cardTitle: {
     color: "#333",
-    fontSize: 16,
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  cardContent: {
+    marginTop: 10,
   },
   cardText: {
     color: "#555",
     marginVertical: 2,
+    fontSize: 16,
+  },
+  infoSection: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 8,
+    marginBottom: 15,
+    elevation: 5,
+  },
+  infoRow: {
+    flexDirection: "row",
+    marginBottom: 10,
+    alignItems: "center",
+  },
+  labelBold: {
+    fontSize: 16,
+    fontWeight: "bold",
+    color: "#333",
+    width: 100,
+  },
+  labelValue: {
+    fontSize: 16,
+    color: "#000",
+    flex: 1,
+    marginLeft: 50,
   },
   editButton: {
-    color: "#FF0000",
+    marginTop: 10,
     borderColor: "#0ea5e9",
     borderWidth: 1,
-    marginTop: 20,
     backgroundColor: "#e0f2fe",
   },
   editButtonText: {
     color: "#0ea5e9",
   },
   deleteButton: {
-    color: "#FF0000",
+    marginTop: 10,
     borderColor: "#FF0000",
     borderWidth: 1,
-    marginTop: 10,
     backgroundColor: "#fee2e2",
   },
   deleteButtonText: {
     color: "#FF0000",
+  },
+  downloadButton: {
+    marginTop: 10,
+    borderColor: "#673AB7",
+    borderWidth: 1,
+    backgroundColor: "#e8eaf6",
+  },
+  downloadButtonText: {
+    color: "#673AB7",
   },
 });
