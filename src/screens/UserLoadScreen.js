@@ -38,13 +38,19 @@ export default function UserLoadScreen() {
 
   async function fetchLoads() {
     try {
+      const currentDate = moment().format("YYYY-MM-DD");
       const { data, error } = await supabase
         .from("loads")
         .select("*")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      setLoads(data);
+
+      const filteredLoads = data.filter(
+        (load) => moment(load.created_at).format("YYYY-MM-DD") === currentDate
+      );
+
+      setLoads(filteredLoads);
     } catch (error) {
       Alert.alert("Error", error.message);
     }
