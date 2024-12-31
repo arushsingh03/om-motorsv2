@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "om-motorsv2",
+    "name": "OmMotors",
     "slug": "om-motorsv2",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,7 +8,7 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -25,10 +25,16 @@
         "config": {
           "apiKey": "AIzaSyCaHg2DbC5PKPm9Twshe-5DR0WNxRuapw0"
         }
-      }
+      },
+      "package": "com.arushsingh03.ommotorsv2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d8848853-6a4e-4cc5-895d-c02817f69178"
+      }
     }
   }
 }
