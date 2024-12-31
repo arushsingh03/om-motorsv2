@@ -19,12 +19,14 @@
       "supportsTablet": true
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff",
-        "config": {
+      "config": {
+        "googleMaps": {
           "apiKey": "AIzaSyCaHg2DbC5PKPm9Twshe-5DR0WNxRuapw0"
         }
+      },
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
       },
       "package": "com.arushsingh03.ommotorsv2"
     },
