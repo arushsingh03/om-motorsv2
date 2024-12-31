@@ -31,10 +31,26 @@ export default function UserLoadScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedReceipt, setSelectedReceipt] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [coordinates, setCoordinates] = useState({});
 
   useEffect(() => {
     fetchLoads();
   }, []);
+
+  useEffect(() => {
+    const fetchCoordinates = async () => {
+      const coords = {};
+      for (const load of loads) {
+        coords[load.id] = {
+          current: await geocodeAddress(load.current_location),
+          destination: await geocodeAddress(load.destination),
+        };
+      }
+      setCoordinates(coords);
+    };
+
+    fetchCoordinates();
+  }, [loads]);
 
   async function fetchLoads() {
     try {
@@ -134,25 +150,29 @@ export default function UserLoadScreen() {
     }
   };
 
-  const renderMap = async (item) => {
+  const renderMap = (item) => {
+    const coords = coordinates[item.id];
+    if (!coords) return null;
+
     return (
       <View style={styles.mapContainer}>
         <MapView
           style={styles.map}
           initialRegion={{
-            latitude: 20.5937,
-            longitude: 78.9629,
+            latitude: coords.current.latitude,
+            longitude: coords.current.longitude,
             latitudeDelta: 10,
             longitudeDelta: 10,
           }}
         >
           <Marker
-            coordinate={await geocodeAddress(item.current_location)}
+            coordinate={coords.current}
             title="Current Location"
             description={item.current_location}
+            pinColor="red"
           />
           <Marker
-            coordinate={await geocodeAddress(item.destination)}
+            coordinate={coords.destination}
             title="Destination"
             description={item.destination}
             pinColor="blue"

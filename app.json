@@ -16,7 +16,8 @@
       "config": {
         "googleMapsApiKey": "your_google_maps_api_key"
       },
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.arushsingh03.ommotorsv2"
     },
     "android": {
       "config": {
@@ -28,11 +29,27 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.arushsingh03.ommotorsv2"
+      "package": "com.arushsingh03.ommotorsv2",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app needs access to your photos to let you share images.",
+          "cameraPermission": "The app needs access to your camera to let you take photos."
+        }
+      ]
+    ],
     "extra": {
       "eas": {
         "projectId": "d8848853-6a4e-4cc5-895d-c02817f69178"
