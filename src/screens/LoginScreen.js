@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Logo from "../../assets/logo.png"; 
+import Logo from "../../assets/logo.png";
 import { supabase } from "../services/supabaseClient";
 import { Input, Button, Image } from "react-native-elements";
 import { View, StyleSheet, Alert, ImageBackground } from "react-native";
@@ -36,7 +36,7 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <ImageBackground
-      source={require("../../assets/background.jpg")} 
+      source={require("../../assets/background.jpg")}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -51,7 +51,7 @@ export default function LoginScreen({ navigation }) {
           autoCapitalize="none"
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Input
           placeholder="Password"
@@ -60,7 +60,7 @@ export default function LoginScreen({ navigation }) {
           secureTextEntry
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Button
           title="Login"
@@ -92,21 +92,23 @@ const styles = StyleSheet.create({
     width: "80%",
     alignItems: "center",
     padding: 20,
-    backgroundColor: "rgb(255, 255, 255)", // Semi-transparent background for inputs and buttons
+    backgroundColor: "rgb(255, 255, 255)",
     borderRadius: 10,
+    elevation: 10,
+    shadowColor: "#000",
   },
   logoContainer: {
-    marginBottom: 30,
+    marginBottom: 10,
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 120,
+    height: 120,
     resizeMode: "contain",
   },
   inputContainer: {
-    borderBottomWidth: 2,
-    borderBottomColor: "#FF0000", 
-    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: "#FF0000",
+    marginBottom: 1,
   },
   input: {
     fontSize: 16,
@@ -127,5 +129,5 @@ const styles = StyleSheet.create({
   },
   buttonTitle: {
     color: "#000",
-  }
+  },
 });

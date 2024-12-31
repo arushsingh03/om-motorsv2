@@ -7,16 +7,19 @@ import {
   Alert,
   Linking,
   ScrollView,
+  TouchableOpacity,
 } from "react-native";
 import { Button, Input, Card, Text } from "react-native-elements";
 import { Picker } from "@react-native-picker/picker";
 import moment from "moment";
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 export default function AdminLoadScreen() {
   const [loads, setLoads] = useState([]);
   const [filteredLoads, setFilteredLoads] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchDate, setSearchDate] = useState(moment().format("YYYY-MM-DD"));
+  const [startDate, setStartDate] = useState(moment().format("YYYY-MM-DD"));
+  const [endDate, setEndDate] = useState(moment().format("YYYY-MM-DD"));
   const [newLoad, setNewLoad] = useState({
     current_location: "",
     destination: "",
@@ -31,6 +34,8 @@ export default function AdminLoadScreen() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
+  const [isStartDatePickerVisible, setStartDatePickerVisibility] = useState(false);
+  const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
 
   useEffect(() => {
     fetchLoads();
@@ -38,7 +43,7 @@ export default function AdminLoadScreen() {
 
   useEffect(() => {
     filterLoads();
-  }, [loads, searchQuery, searchDate]);
+  }, [loads, searchQuery, startDate, endDate]);
 
   async function fetchLoads() {
     try {
@@ -60,10 +65,11 @@ export default function AdminLoadScreen() {
   const filterLoads = () => {
     let filtered = loads;
 
-    // Filter by date
-    filtered = filtered.filter(
-      (load) => moment(load.created_at).format("YYYY-MM-DD") === searchDate
-    );
+    // Filter by date range
+    filtered = filtered.filter((load) => {
+      const loadDate = moment(load.created_at).format("YYYY-MM-DD");
+      return loadDate >= startDate && loadDate <= endDate;
+    });
 
     // Filter by search query
     if (searchQuery) {
@@ -215,6 +221,32 @@ export default function AdminLoadScreen() {
     </View>
   );
 
+  const showStartDatePicker = () => {
+    setStartDatePickerVisibility(true);
+  };
+
+  const hideStartDatePicker = () => {
+    setStartDatePickerVisibility(false);
+  };
+
+  const handleStartDateConfirm = (date) => {
+    setStartDate(moment(date).format("YYYY-MM-DD"));
+    hideStartDatePicker();
+  };
+
+  const showEndDatePicker = () => {
+    setEndDatePickerVisibility(true);
+  };
+
+  const hideEndDatePicker = () => {
+    setEndDatePickerVisibility(false);
+  };
+
+  const handleEndDateConfirm = (date) => {
+    setEndDate(moment(date).format("YYYY-MM-DD"));
+    hideEndDatePicker();
+  };
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.searchContainer}>
@@ -235,17 +267,45 @@ export default function AdminLoadScreen() {
               containerStyle={styles.searchInput}
               leftIcon={{ type: "font-awesome", name: "search", color: "#666" }}
             />
-            <Input
-              placeholder="Select Date (YYYY-MM-DD)"
-              value={searchDate}
-              onChangeText={setSearchDate}
-              inputStyle={styles.inputText}
-              containerStyle={styles.searchInput}
-              leftIcon={{
-                type: "font-awesome",
-                name: "calendar",
-                color: "#666",
-              }}
+            <TouchableOpacity onPress={showStartDatePicker} style={styles.datePickerButton}>
+              <Input
+                placeholder="Start Date (YYYY-MM-DD)"
+                value={startDate}
+                editable={false}
+                inputStyle={styles.inputText}
+                containerStyle={styles.searchInput}
+                leftIcon={{
+                  type: "font-awesome",
+                  name: "calendar",
+                  color: "#666",
+                }}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={showEndDatePicker} style={styles.datePickerButton}>
+              <Input
+                placeholder="End Date (YYYY-MM-DD)"
+                value={endDate}
+                editable={false}
+                inputStyle={styles.inputText}
+                containerStyle={styles.searchInput}
+                leftIcon={{
+                  type: "font-awesome",
+                  name: "calendar",
+                  color: "#666",
+                }}
+              />
+            </TouchableOpacity>
+            <DateTimePickerModal
+              isVisible={isStartDatePickerVisible}
+              mode="date"
+              onConfirm={handleStartDateConfirm}
+              onCancel={hideStartDatePicker}
+            />
+            <DateTimePickerModal
+              isVisible={isEndDatePickerVisible}
+              mode="date"
+              onConfirm={handleEndDateConfirm}
+              onCancel={hideEndDatePicker}
             />
           </>
         )}
@@ -432,7 +492,7 @@ export default function AdminLoadScreen() {
 
                 {item.receipt_url && (
                   <Button
-                    title="Download Receipt"
+                    title="Download"
                     onPress={() => downloadReceipt(item.receipt_url)}
                     type="clear"
                     buttonStyle={styles.downloadButton}
@@ -440,7 +500,7 @@ export default function AdminLoadScreen() {
                     icon={{
                       name: "download",
                       type: "font-awesome",
-                      color: "#673AB7",
+                      color: "#22c55e",
                     }}
                   />
                 )}
@@ -549,9 +609,11 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#333",
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: "bold",
     textAlign: "center",
+    backgroundColor: "#fecaca",
+    borderRadius: 10,
   },
   cardContent: {
     marginTop: 10,
@@ -561,23 +623,28 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 8,
     marginBottom: 15,
+    borderColor: "#e2e8f0",
+    borderWidth: 1,
+    height: 380,
   },
   infoRow: {
     flexDirection: "row",
-    marginBottom: 8,
     alignItems: "center",
+    borderBottomColor: "#e2e8f0",
+    borderBottomWidth: 1,
+    height: 45,
   },
   labelBold: {
-    fontSize: 15,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
     width: 110,
   },
   labelValue: {
-    fontSize: 15,
+    fontSize: 18,
     color: "#000",
     flex: 1,
-    marginLeft: 50,
+    marginLeft: 80,
   },
   buttonGroup: {
     flexDirection: "row",
@@ -586,14 +653,13 @@ const styles = StyleSheet.create({
   },
   editButton: {
     paddingVertical: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 15,
     borderRadius: 20,
     backgroundColor: "#e0f2fe",
     marginHorizontal: 5,
   },
   editButtonText: {
     color: "#0ea5e9",
-    marginLeft: 5,
   },
   deleteButton: {
     paddingVertical: 8,
@@ -610,11 +676,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     borderRadius: 20,
-    backgroundColor: "#e8eaf6",
+    backgroundColor: "#f0fdf4",
     marginHorizontal: 5,
   },
   downloadButtonText: {
-    color: "#673AB7",
+    color: "#22c55e",
     marginLeft: 5,
   },
   loadingContainer: {
@@ -640,5 +706,8 @@ const styles = StyleSheet.create({
   },
   filterButtonContainer: {
     marginBottom: 10,
+  },
+  datePickerButton: {
+    width: "100%",
   },
 });

@@ -212,13 +212,13 @@ export default function UserLoadScreen() {
         style={[styles.contactButton, { backgroundColor: "#2196F3" }]}
         onPress={() => handleCall(item.contact_number)}
       >
-        <Text style={styles.buttonText}>Call Contact</Text>
+        <Text style={styles.buttonText}>Call</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.contactButton, { backgroundColor: "#2196F3" }]}
         onPress={() => handleEmail(item.contact_email)}
       >
-        <Text style={styles.buttonText}>Email Contact</Text>
+        <Text style={styles.buttonText}>Email</Text>
       </TouchableOpacity>
     </View>
   );
@@ -327,7 +327,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     color: "#000",
     fontWeight: "bold",
-    marginBottom: 5,
   },
   cardContent: {
     padding: 10,
@@ -345,13 +344,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   labelBold: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "bold",
     color: "#333",
     width: 100,
   },
   labelValue: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#000",
     flex: 1,
     marginLeft: 70,

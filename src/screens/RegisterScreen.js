@@ -71,16 +71,16 @@ export default function RegisterScreen({ navigation }) {
           onChangeText={(value) => setFormData({ ...formData, name: value })}
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Input
-          placeholder="Email"
-          value={formData.email}
-          onChangeText={(value) => setFormData({ ...formData, email: value })}
-          autoCapitalize="none"
+          placeholder="Phone Number"
+          value={formData.phone}
+          onChangeText={(value) => setFormData({ ...formData, phone: value })}
+          keyboardType="phone-pad"
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Input
           placeholder="Password"
@@ -91,16 +91,27 @@ export default function RegisterScreen({ navigation }) {
           secureTextEntry
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Input
-          placeholder="Phone Number"
-          value={formData.phone}
-          onChangeText={(value) => setFormData({ ...formData, phone: value })}
-          keyboardType="phone-pad"
+          placeholder="Confirm Password"
+          value={formData.password}
+          onChangeText={(value) =>
+            setFormData({ ...formData, password: value })
+          }
+          secureTextEntry
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
+        />
+        <Input
+          placeholder="Email"
+          value={formData.email}
+          onChangeText={(value) => setFormData({ ...formData, email: value })}
+          autoCapitalize="none"
+          inputContainerStyle={styles.inputContainer}
+          inputStyle={styles.input}
+          placeholderTextColor={"#9ca3af"}
         />
         <Input
           placeholder="Address"
@@ -109,7 +120,7 @@ export default function RegisterScreen({ navigation }) {
           multiline
           inputContainerStyle={styles.inputContainer}
           inputStyle={styles.input}
-          placeholderTextColor={"#000"}
+          placeholderTextColor={"#9ca3af"}
         />
         <Button
           title="Register"
@@ -117,7 +128,7 @@ export default function RegisterScreen({ navigation }) {
           loading={loading}
           buttonStyle={styles.registerButton}
           containerStyle={styles.buttonContainer}
-          titleStyle={styles.buttonText} 
+          titleStyle={styles.buttonText}
         />
       </ScrollView>
     </ImageBackground>
@@ -136,20 +147,22 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "rgb(255, 255, 255)",
     borderRadius: 10,
-    marginTop: 50,
+    marginTop: 92,
+    elevation: 10,
+    shadowColor: "#000",
   },
   logoContainer: {
-    marginBottom: 30,
+    marginBottom: 10,
   },
   logo: {
-    width: 150,
-    height: 150,
+    width: 110,
+    height: 110,
     resizeMode: "contain",
   },
   inputContainer: {
-    borderBottomWidth: 2,
+    borderBottomWidth: 1,
     borderBottomColor: "#FF0000",
-    marginBottom: 15,
+    marginBottom: 1,
     color: "#000",
   },
   input: {
