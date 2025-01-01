@@ -4,17 +4,14 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { supabase } from "./src/services/supabaseClient";
 
-// Ignore specific warnings
 LogBox.ignoreLogs([
   "AsyncStorage has been extracted from react-native",
-  // Add other warnings you want to ignore
 ]);
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Initialize Supabase session
     const initializeApp = async () => {
       try {
         await supabase.auth.getSession();

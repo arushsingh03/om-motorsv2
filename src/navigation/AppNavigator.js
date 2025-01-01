@@ -5,8 +5,6 @@ import { MaterialIcons } from "react-native-vector-icons";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { supabase } from "../services/supabaseClient";
-
-// Screen imports
 import ChatScreen from "../screens/ChatScreen";
 import LoginScreen from "../screens/LoginScreen";
 import RegisterScreen from "../screens/RegisterScreen";
@@ -59,7 +57,7 @@ export default function AppNavigator() {
   }
 
   if (isLoading) {
-    return null; // Or a loading spinner
+    return null; 
   }
 
   const headerRight = (navigation) => (

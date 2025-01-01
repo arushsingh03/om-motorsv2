@@ -11,11 +11,11 @@ module.exports = function (api) {
         "module-resolver",
         {
           alias: {
-            "@": "./src", // Adjust the alias path based on your project structure
+            "@": "./src", 
           },
         },
       ],
-      "react-native-reanimated/plugin", // Must be listed last
+      "react-native-reanimated/plugin", 
     ],
   };
 };

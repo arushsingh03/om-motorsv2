@@ -133,12 +133,12 @@ export default function UserLoadScreen() {
       setIsLoading(true);
       const { data, error } = await supabase.storage
         .from("receipts")
-        .createSignedUrl(receiptUrl, 3600); // Creates a signed URL valid for 1 hour
+        .createSignedUrl(receiptUrl, 3600); 
 
       if (error) throw error;
 
-      console.log("Signed URL:", data.signedUrl); // Log the signed URL for debugging
-      Linking.openURL(data.signedUrl); // Open the URL in the browser to download the receipt
+      console.log("Signed URL:", data.signedUrl); 
+      Linking.openURL(data.signedUrl); 
     } catch (error) {
       console.error("Error downloading receipt:", error);
       Alert.alert(

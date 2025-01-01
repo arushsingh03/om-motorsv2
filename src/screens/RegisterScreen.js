@@ -25,7 +25,6 @@ export default function RegisterScreen({ navigation }) {
     try {
       setLoading(true);
 
-      // Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: formData.email,
         password: formData.password,
@@ -33,7 +32,6 @@ export default function RegisterScreen({ navigation }) {
 
       if (authError) throw authError;
 
-      // Create profile
       const { error: profileError } = await supabase.from("profiles").insert([
         {
           id: authData.user.id,

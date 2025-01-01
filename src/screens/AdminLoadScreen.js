@@ -6,7 +6,6 @@ import {
   FlatList,
   Alert,
   Linking,
-  ScrollView,
   TouchableOpacity,
 } from "react-native";
 import { Button, Input, Card, Text } from "react-native-elements";
@@ -34,7 +33,8 @@ export default function AdminLoadScreen() {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
-  const [isStartDatePickerVisible, setStartDatePickerVisibility] = useState(false);
+  const [isStartDatePickerVisible, setStartDatePickerVisibility] =
+    useState(false);
   const [isEndDatePickerVisible, setEndDatePickerVisibility] = useState(false);
 
   useEffect(() => {
@@ -65,13 +65,11 @@ export default function AdminLoadScreen() {
   const filterLoads = () => {
     let filtered = loads;
 
-    // Filter by date range
     filtered = filtered.filter((load) => {
       const loadDate = moment(load.created_at).format("YYYY-MM-DD");
       return loadDate >= startDate && loadDate <= endDate;
     });
 
-    // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -90,7 +88,6 @@ export default function AdminLoadScreen() {
     try {
       setLoading(true);
 
-      // Validate input fields
       if (
         !newLoad.current_location ||
         !newLoad.destination ||
@@ -177,7 +174,7 @@ export default function AdminLoadScreen() {
     try {
       const { data, error } = await supabase.storage
         .from("receipts")
-        .createSignedUrl(receiptUrl, 3600); // Creates a signed URL valid for 1 hour
+        .createSignedUrl(receiptUrl, 3600); 
 
       if (error) throw error;
 
@@ -248,156 +245,7 @@ export default function AdminLoadScreen() {
   };
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Button
-          title="Filter"
-          onPress={() => setShowSearch(!showSearch)}
-          buttonStyle={styles.filterButton}
-          containerStyle={styles.filterButtonContainer}
-          icon={{ name: "filter", type: "font-awesome", color: "white" }}
-        />
-        {showSearch && (
-          <>
-            <Input
-              placeholder="Search location or contact details..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              inputStyle={styles.inputText}
-              containerStyle={styles.searchInput}
-              leftIcon={{ type: "font-awesome", name: "search", color: "#666" }}
-            />
-            <TouchableOpacity onPress={showStartDatePicker} style={styles.datePickerButton}>
-              <Input
-                placeholder="Start Date (YYYY-MM-DD)"
-                value={startDate}
-                editable={false}
-                inputStyle={styles.inputText}
-                containerStyle={styles.searchInput}
-                leftIcon={{
-                  type: "font-awesome",
-                  name: "calendar",
-                  color: "#666",
-                }}
-              />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={showEndDatePicker} style={styles.datePickerButton}>
-              <Input
-                placeholder="End Date (YYYY-MM-DD)"
-                value={endDate}
-                editable={false}
-                inputStyle={styles.inputText}
-                containerStyle={styles.searchInput}
-                leftIcon={{
-                  type: "font-awesome",
-                  name: "calendar",
-                  color: "#666",
-                }}
-              />
-            </TouchableOpacity>
-            <DateTimePickerModal
-              isVisible={isStartDatePickerVisible}
-              mode="date"
-              onConfirm={handleStartDateConfirm}
-              onCancel={hideStartDatePicker}
-            />
-            <DateTimePickerModal
-              isVisible={isEndDatePickerVisible}
-              mode="date"
-              onConfirm={handleEndDateConfirm}
-              onCancel={hideEndDatePicker}
-            />
-          </>
-        )}
-      </View>
-
-      {!showForm ? (
-        <Button
-          title="Add New Load"
-          onPress={() => setShowForm(true)}
-          buttonStyle={styles.addButton}
-          containerStyle={styles.addButtonContainer}
-          icon={{ name: "plus", type: "font-awesome", color: "white" }}
-        />
-      ) : (
-        <View style={styles.form}>
-          <Text style={styles.formTitle}>
-            {editingLoad ? "Edit Load" : "Add New Load"}
-          </Text>
-
-          <Input
-            placeholder="Current Location"
-            value={newLoad.current_location}
-            onChangeText={(value) =>
-              setNewLoad({ ...newLoad, current_location: value })
-            }
-            inputStyle={styles.inputText}
-            placeholderTextColor="#666"
-          />
-
-          <Input
-            placeholder="Destination"
-            value={newLoad.destination}
-            onChangeText={(value) =>
-              setNewLoad({ ...newLoad, destination: value })
-            }
-            inputStyle={styles.inputText}
-            placeholderTextColor="#666"
-          />
-
-          {renderMeasurementInput("weight", "Weight", ["kg", "tons", "lbs"])}
-          {renderMeasurementInput("truck_length", "Truck Length", [
-            "m",
-            "ft",
-            "inches",
-          ])}
-
-          <Input
-            placeholder="Contact Number"
-            value={newLoad.contact_number}
-            onChangeText={(value) =>
-              setNewLoad({ ...newLoad, contact_number: value })
-            }
-            keyboardType="phone-pad"
-            inputStyle={styles.inputText}
-            placeholderTextColor="#666"
-          />
-
-          <Input
-            placeholder="Contact Email"
-            value={newLoad.contact_email}
-            onChangeText={(value) =>
-              setNewLoad({ ...newLoad, contact_email: value })
-            }
-            keyboardType="email-address"
-            autoCapitalize="none"
-            inputStyle={styles.inputText}
-            placeholderTextColor="#666"
-          />
-
-          <Button
-            title={editingLoad ? "Update Load" : "Add Load"}
-            onPress={handleAddOrEditLoad}
-            loading={loading}
-            buttonStyle={styles.submitButton}
-            icon={{
-              name: editingLoad ? "save" : "plus",
-              type: "font-awesome",
-              color: "white",
-            }}
-          />
-
-          <Button
-            title="Cancel"
-            onPress={resetForm}
-            type="outline"
-            containerStyle={styles.cancelButton}
-            titleStyle={styles.cancelButtonText}
-            icon={{ name: "times", type: "font-awesome", color: "#000" }}
-          />
-        </View>
-      )}
-
+    <View style={styles.container}>
       <FlatList
         data={filteredLoads}
         keyExtractor={(item) => item.id.toString()}
@@ -508,8 +356,173 @@ export default function AdminLoadScreen() {
             </View>
           </Card>
         )}
+        ListHeaderComponent={
+          <>
+            <View style={styles.searchContainer}>
+              <Button
+                title="Filter"
+                onPress={() => setShowSearch(!showSearch)}
+                buttonStyle={styles.filterButton}
+                containerStyle={styles.filterButtonContainer}
+                icon={{ name: "filter", type: "font-awesome", color: "white" }}
+              />
+              {showSearch && (
+                <>
+                  <Input
+                    placeholder="Search location or contact details..."
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    inputStyle={styles.inputText}
+                    containerStyle={styles.searchInput}
+                    leftIcon={{
+                      type: "font-awesome",
+                      name: "search",
+                      color: "#666",
+                    }}
+                  />
+                  <TouchableOpacity
+                    onPress={showStartDatePicker}
+                    style={styles.datePickerButton}
+                  >
+                    <Input
+                      placeholder="Start Date (YYYY-MM-DD)"
+                      value={startDate}
+                      editable={false}
+                      inputStyle={styles.inputText}
+                      containerStyle={styles.searchInput}
+                      leftIcon={{
+                        type: "font-awesome",
+                        name: "calendar",
+                        color: "#666",
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={showEndDatePicker}
+                    style={styles.datePickerButton}
+                  >
+                    <Input
+                      placeholder="End Date (YYYY-MM-DD)"
+                      value={endDate}
+                      editable={false}
+                      inputStyle={styles.inputText}
+                      containerStyle={styles.searchInput}
+                      leftIcon={{
+                        type: "font-awesome",
+                        name: "calendar",
+                        color: "#666",
+                      }}
+                    />
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    isVisible={isStartDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleStartDateConfirm}
+                    onCancel={hideStartDatePicker}
+                  />
+                  <DateTimePickerModal
+                    isVisible={isEndDatePickerVisible}
+                    mode="date"
+                    onConfirm={handleEndDateConfirm}
+                    onCancel={hideEndDatePicker}
+                  />
+                </>
+              )}
+            </View>
+            {!showForm ? (
+              <Button
+                title="Add New Load"
+                onPress={() => setShowForm(true)}
+                buttonStyle={styles.addButton}
+                containerStyle={styles.addButtonContainer}
+                icon={{ name: "plus", type: "font-awesome", color: "white" }}
+              />
+            ) : (
+              <View style={styles.form}>
+                <Text style={styles.formTitle}>
+                  {editingLoad ? "Edit Load" : "Add New Load"}
+                </Text>
+
+                <Input
+                  placeholder="Current Location"
+                  value={newLoad.current_location}
+                  onChangeText={(value) =>
+                    setNewLoad({ ...newLoad, current_location: value })
+                  }
+                  inputStyle={styles.inputText}
+                  placeholderTextColor="#666"
+                />
+
+                <Input
+                  placeholder="Destination"
+                  value={newLoad.destination}
+                  onChangeText={(value) =>
+                    setNewLoad({ ...newLoad, destination: value })
+                  }
+                  inputStyle={styles.inputText}
+                  placeholderTextColor="#666"
+                />
+
+                {renderMeasurementInput("weight", "Weight", [
+                  "kg",
+                  "tons",
+                  "lbs",
+                ])}
+                {renderMeasurementInput("truck_length", "Truck Length", [
+                  "m",
+                  "ft",
+                  "inches",
+                ])}
+
+                <Input
+                  placeholder="Contact Number"
+                  value={newLoad.contact_number}
+                  onChangeText={(value) =>
+                    setNewLoad({ ...newLoad, contact_number: value })
+                  }
+                  keyboardType="phone-pad"
+                  inputStyle={styles.inputText}
+                  placeholderTextColor="#666"
+                />
+
+                <Input
+                  placeholder="Contact Email"
+                  value={newLoad.contact_email}
+                  onChangeText={(value) =>
+                    setNewLoad({ ...newLoad, contact_email: value })
+                  }
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  inputStyle={styles.inputText}
+                  placeholderTextColor="#666"
+                />
+
+                <Button
+                  title={editingLoad ? "Update Load" : "Add Load"}
+                  onPress={handleAddOrEditLoad}
+                  loading={loading}
+                  buttonStyle={styles.submitButton}
+                  icon={{
+                    name: editingLoad ? "save" : "plus",
+                    type: "font-awesome",
+                    color: "white",
+                  }}
+                />
+
+                <Button
+                  title="Cancel"
+                  onPress={resetForm}
+                  type="outline"
+                  containerStyle={styles.cancelButton}
+                  titleStyle={styles.cancelButtonText}
+                  icon={{ name: "times", type: "font-awesome", color: "#000" }}
+                />
+              </View>
+            )}
+          </>
+        }
       />
-    </ScrollView>
+    </View>
   );
 }
 

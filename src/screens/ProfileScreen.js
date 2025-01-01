@@ -29,7 +29,6 @@ export default function ProfileScreen() {
 
         if (error) throw error;
         setProfile(data);
-        // Set initial values for the inputs
         setName(data?.name || "");
         setPhoneNumber(data?.phone_number || "");
         setAddress(data?.address || "");

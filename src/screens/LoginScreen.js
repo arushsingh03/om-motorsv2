@@ -19,7 +19,6 @@ export default function LoginScreen({ navigation }) {
 
       if (error) throw error;
 
-      // Check if user is admin
       const { data: profile } = await supabase
         .from("profiles")
         .select("is_admin")
